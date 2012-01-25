@@ -3,17 +3,17 @@
 //  SegmentedControlViews
 //
 //  Created by Michael Luton on 1/22/12.
-//  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
+//  Copyright (c) 2012 Michael Luton. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
 
-@class ViewController;
+@class SegmentsController;
 
-@interface AppDelegate : UIResponder <UIApplicationDelegate>
+@interface AppDelegate : NSObject <UIApplicationDelegate>
 
-@property (strong, nonatomic) UIWindow *window;
-
-@property (strong, nonatomic) ViewController *viewController;
+@property (nonatomic, retain) SegmentsController* segmentsController;
+@property (nonatomic, retain) UISegmentedControl* segmentedControl;
+@property (nonatomic, retain) IBOutlet UIWindow* window;
 
 @end

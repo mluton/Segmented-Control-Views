@@ -3,72 +3,82 @@
 //  SegmentedControlViews
 //
 //  Created by Michael Luton on 1/22/12.
-//  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
+//  Copyright (c) 2012 Michael Luton. All rights reserved.
+//  Really large portions of this file Copyright Red Artisan 2010. All rights reserved.
 //
 
 #import "AppDelegate.h"
+#import "SegmentsController.h"
+#import "NSArray+PerformSelector.h"
 
-#import "ViewController.h"
+#import "FirstViewController.h"
+#import "SecondViewController.h"
+#import "ThirdViewController.h"
+
+@interface AppDelegate ()
+- (NSArray *)segmentViewControllers;
+- (void)firstUserExperience;
+@end
 
 @implementation AppDelegate
 
-@synthesize window = _window;
-@synthesize viewController = _viewController;
+@synthesize window;
+@synthesize segmentsController;
+@synthesize segmentedControl;
 
-- (void)dealloc
-{
-    [_window release];
-    [_viewController release];
-    [super dealloc];
-}
+#pragma mark -
+#pragma mark Application lifecycle
+
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     self.window = [[[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]] autorelease];
-    // Override point for customization after application launch.
-    self.viewController = [[[ViewController alloc] initWithNibName:@"ViewController" bundle:nil] autorelease];
-    self.window.rootViewController = self.viewController;
+
+    NSArray * viewControllers = [self segmentViewControllers];
+    UINavigationController * navigationController = [[[UINavigationController alloc] init] autorelease];
+    
+    self.segmentsController = [[SegmentsController alloc] initWithNavigationController:navigationController viewControllers:viewControllers];
+    self.segmentedControl = [[UISegmentedControl alloc] initWithItems:[viewControllers arrayByPerformingSelector:@selector(title)]];
+    self.segmentedControl.segmentedControlStyle = UISegmentedControlStyleBar;
+    [self.segmentedControl addTarget:self.segmentsController action:@selector(indexDidChangeForSegmentedControl:) forControlEvents:UIControlEventValueChanged];
+    
+    [self firstUserExperience];
+    [window addSubview:navigationController.view];
     [self.window makeKeyAndVisible];
+    
     return YES;
 }
 
-- (void)applicationWillResignActive:(UIApplication *)application
-{
-    /*
-     Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
-     Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
-     */
+#pragma mark -
+#pragma mark Segment Content
+- (NSArray *)segmentViewControllers {
+    UIViewController * firstCat     = [[FirstViewController alloc] initWithNibName:@"FirstViewController" bundle:nil];
+    UIViewController * secondCat = [[SecondViewController alloc] initWithNibName:@"SecondViewController" bundle:nil];
+    UIViewController * thirdCat = [[ThirdViewController alloc] initWithNibName:@"ThirdViewController" bundle:nil];
+    
+    NSArray * viewControllers = [NSArray arrayWithObjects:firstCat, secondCat, thirdCat, nil];
+    [firstCat release];
+    [secondCat release];
+    [thirdCat release];
+    
+    return viewControllers;
 }
 
-- (void)applicationDidEnterBackground:(UIApplication *)application
-{
-    /*
-     Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later. 
-     If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
-     */
+- (void)firstUserExperience {
+    self.segmentedControl.selectedSegmentIndex = 0;
+    [self.segmentsController indexDidChangeForSegmentedControl:self.segmentedControl];
 }
 
-- (void)applicationWillEnterForeground:(UIApplication *)application
+
+#pragma mark -
+#pragma mark Memory management
+- (void)dealloc
 {
-    /*
-     Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
-     */
+    self.segmentedControl   = nil;
+    self.segmentsController = nil;
+    [window release];
+    [super dealloc];
 }
 
-- (void)applicationDidBecomeActive:(UIApplication *)application
-{
-    /*
-     Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-     */
-}
-
-- (void)applicationWillTerminate:(UIApplication *)application
-{
-    /*
-     Called when the application is about to terminate.
-     Save data if appropriate.
-     See also applicationDidEnterBackground:.
-     */
-}
 
 @end
